@@ -24,8 +24,7 @@ export default class UnitGenEdit extends PlForm {
                 value: ''
             },
             unitcode: {
-                type: String,
-                value: 'nfc.unitlist'
+                type: String
             },
             showMethod: {
                 type: String,
@@ -88,7 +87,7 @@ export default class UnitGenEdit extends PlForm {
                 required-args="unitcode;showMethod" args="[[_compose('unitcode;showMethod;unitId', unitcode,showMethod,pkey)]]">
             </pl-action>
             <pl-action id="aSave" endpoint="/@nfjs/compositions/api/saveUnitData" data="{{data}}"
-                required-args="saveData,action,unitcode" args="[[_compose('saveData;action;unitcode', saveData,action,unitcode)]]">
+                required-args="saveData;action;unitcode" args="[[_compose('saveData;action;unitcode', saveData,action,unitcode)]]">
             </pl-action>
         `
     }
@@ -112,9 +111,11 @@ export default class UnitGenEdit extends PlForm {
     async onBtnClick(event) {
         return;
         // todo: open composition
-        let item = event.model.item,
-            modalFrm = `composition/${item.unitcode}`;
-        const result = await this.openModal(modalFrm)
+        const item = event.model.item;
+        const result = await this.openModal('composition/composition', {
+            unitcode: item.unitcode,
+            compositionCode: ''
+        })
 
         if (result) {
             this.set(`${item.value}`, result.id)

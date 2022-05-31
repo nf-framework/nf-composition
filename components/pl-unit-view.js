@@ -85,9 +85,9 @@ class PlUnitView extends PlElement {
                     </template>
                 </pl-dom-if>
                 <pl-grid header=[[meta.name]] data="[[data]]" selected="{{selected}}" id="grid">
-                    <pl-repeat items="{{_computeColumns(meta.columns)}}">
+                    <pl-repeat items="{{meta.columns}}">
                         <template>
-                            <pl-grid-column min-width="50" field="[[item.field]]" selected="[[selected]]" header="[[item.caption]]"
+                            <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
                                 hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" width="[[item.width]]"
                                 resizable>
                             </pl-grid-column>
@@ -96,12 +96,14 @@ class PlUnitView extends PlElement {
                     <pl-dom-if if="[[editable]]">
                         <template>
                             <pl-grid-column width="90" action>
-                                <pl-flex-layout>
-                                    <pl-icon-button iconset="pl-default" size="16" icon="pencil" on-click="[[onUpdClick]]"
-                                        variant="link"></pl-icon-button>
-                                    <pl-icon-button iconset="pl-default" size="16" icon="trashcan" on-click="[[onDelClick]]"
-                                        variant="link"></pl-icon-button>
-                                </pl-flex-layout>
+                                <template>
+                                    <pl-flex-layout>
+                                        <pl-icon-button iconset="pl-default" size="16" icon="pencil" on-click="[[onUpdClick]]"
+                                            variant="link" title="Редактировать"></pl-icon-button>
+                                        <pl-icon-button iconset="pl-default" size="16" icon="trashcan" on-click="[[onDelClick]]"
+                                            variant="link" title="Удалить"></pl-icon-button>
+                                    </pl-flex-layout>
+                                </template>
                             </pl-grid-column>
                         </template>
                     </pl-dom-if>
@@ -115,15 +117,14 @@ class PlUnitView extends PlElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this.refresh();
+    }
 
+    refresh() {
         this.$.aGetMeta.execute({
             unitcode: this.unitcode,
             showMethod: this.showMethod
         })
-    }
-
-    _computeColumns() {
-        return this.meta.columns.filter(item => !!!item.is_hidden);
     }
 
     async _metaObserver() {
@@ -156,29 +157,43 @@ class PlUnitView extends PlElement {
                 showMethod: this.showMethod
             }
         );
+        this.refresh()
     }
 
     async onUpdClick(event) {
         await this.form.open('composition.unit_genedit', {
-            unitcode: this.unitcode,
-            showMethod: this.showMethod,
-            pkey: event.model.row[this._key]
-        }
-    );
+                unitcode: this.unitcode,
+                showMethod: this.showMethod,
+                pkey: event.model.row[this._key]
+            }
+        );
+        this.refresh()
     }
 
     async onDelClick(event) {
-        let res = await this.$.aDel.execute({
-            unitcode: this.unitcode,
-            pkey: this._key,
-            unitId: event.model.row[this._key]
+        const resConfirm = await this.form.showConfirm(`Вы уверены, что хотите удалить запись?`, {
+            buttons: [{
+                label: 'Нет',
+                variant: 'secondary',
+                action: false,
+            },
+                {
+                    label: 'Удалить',
+                    variant: 'primary',
+                    negative: true,
+                    action: true
+                }]
         });
-        if (res.success) {
-            //this.notify('Запись успешно удалена');
-            this.$.aGetMeta.execute({
+        if(resConfirm) {
+            let res = await this.$.aDel.execute({
                 unitcode: this.unitcode,
-                showMethod: this.showMethod
-            })
+                pkey: this._key,
+                unitId: event.model.row[this._key]
+            });
+            if (res.success) {
+                this.form.notify('Запись успешно удалена');
+                this.refresh();
+            }
         }
     }
 }
