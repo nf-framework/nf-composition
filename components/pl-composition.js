@@ -14,20 +14,20 @@ export class PlComposition extends PlForm {
                 type: String,
                 value: 'default'
             },
+            form: {
+                type: Object
+            }
         }
     }
 
-    static get css() {
-        return css`
-
-        `
+    connectedCallback() {
+        super.connectedCallback();
+        this.form = this;
     }
 
     static get template() {
         return html`
-            <pl-flex-layout scrollable vertical fit>
-                <pl-unit-view unitcode="[[unitcode]]" show-method="[[showMethod]]"></pl-unit-view>
-            </pl-flex-layout>
+            <pl-unit-view form="[[form]]" unitcode="[[unitcode]]" show-method="[[showMethod]]"></pl-unit-view>
 		`;
     }
 }

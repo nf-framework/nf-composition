@@ -1,4 +1,3 @@
-import { html, css } from "polylib";
 import { PlComposition } from "@nfjs/composition/components/pl-composition.js";
 
 export default class CompositionFrm extends PlComposition {

@@ -1,5 +1,5 @@
-import {PlElement, css, html} from "polylib";
-
+import { PlElement, css, html } from "polylib";
+import { openForm } from "@nfjs/front-pl/lib/FormUtils";
 import '@plcmp/pl-grid';
 import '@plcmp/pl-grid/pl-grid-column';
 import '@plcmp/pl-repeat';
@@ -40,7 +40,7 @@ class PlUnitView extends PlElement {
             },
             selected: {
                 type: Object,
-                value: () => {},
+                value: () => { },
                 //observer: '_selectedObserver'
             },
             _key: {
@@ -58,6 +58,9 @@ class PlUnitView extends PlElement {
             editable: {
                 type: Boolean,
                 value: true
+            },
+            form: {
+                type: Object
             }
         }
     }
@@ -81,23 +84,11 @@ class PlUnitView extends PlElement {
                         <pl-button variant="primary" label="Добавить" on-click="[[onAddClick]]">
                     </template>
                 </pl-dom-if>
-                <pl-grid
-                    header=[[meta.name]]
-                    data="[[data]]"
-                    selected="{{selected}}"
-                    id="grid"
-                >
+                <pl-grid header=[[meta.name]] data="[[data]]" selected="{{selected}}" id="grid">
                     <pl-repeat items="{{_computeColumns(meta.columns)}}">
                         <template>
-                            <pl-grid-column
-                                min-width="50"
-                                field="[[item.field]]"
-                                selected="[[selected]]"
-                                header="[[item.caption]]"
-                                hidden="[[item.is_hidden]]"
-                                sortable="[[item.sortable]]"
-                                sort="[[item.sort]]"
-                                width="[[item.width]]"
+                            <pl-grid-column min-width="50" field="[[item.field]]" selected="[[selected]]" header="[[item.caption]]"
+                                hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" width="[[item.width]]"
                                 resizable>
                             </pl-grid-column>
                         </template>
@@ -106,8 +97,10 @@ class PlUnitView extends PlElement {
                         <template>
                             <pl-grid-column width="90" action>
                                 <pl-flex-layout>
-                                    <pl-icon-button iconset="pl-default" size="16" icon="pencil" on-click="[[onUpdClick]]" variant="link"></pl-icon-button>
-                                    <pl-icon-button iconset="pl-default" size="16" icon="trashcan" on-click="[[onDelClick]]" variant="link"></pl-icon-button>
+                                    <pl-icon-button iconset="pl-default" size="16" icon="pencil" on-click="[[onUpdClick]]"
+                                        variant="link"></pl-icon-button>
+                                    <pl-icon-button iconset="pl-default" size="16" icon="trashcan" on-click="[[onDelClick]]"
+                                        variant="link"></pl-icon-button>
                                 </pl-flex-layout>
                             </pl-grid-column>
                         </template>
@@ -158,21 +151,20 @@ class PlUnitView extends PlElement {
     }
 
     async onAddClick() {
-        await NF.open('composition.unit_genedit', {
-            unitcode: this.unitcode,
-            showMethod: this.showMethod
-        });
+        await this.form.open('composition.unit_genedit', {
+                unitcode: this.unitcode,
+                showMethod: this.showMethod
+            }
+        );
     }
 
     async onUpdClick(event) {
-        debugger
-        //NF.getFormByEvent(event).open();
-        /*
-        await NF.open('composition.unit_genedit', {
-            pkey: event.model.row[this._key],
+        await this.form.open('composition.unit_genedit', {
             unitcode: this.unitcode,
-            showMethod: this.showMethod
-        });*/
+            showMethod: this.showMethod,
+            pkey: event.model.row[this._key]
+        }
+    );
     }
 
     async onDelClick(event) {

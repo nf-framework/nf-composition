@@ -39,6 +39,10 @@ export default class UnitGenEdit extends PlForm {
             },
             data: {
                 type: Object
+            },
+            urlParams: {
+                type: Array,
+                value: ['unitcode', 'showMethod', 'pkey']
             }
         }
     }
@@ -76,17 +80,20 @@ export default class UnitGenEdit extends PlForm {
                 </pl-repeat>
                 <pl-flex-layout fit>
                     <pl-button label="[[actionBtnLabel]]" on-click="[[onSave]]"></pl-button>
-                    <pl-button label="Отмена" on-click="[[onClose]]"></pl-button>
+                    <pl-button label="Отмена" on-click="[[close]]"></pl-button>
                 </pl-flex-layout>
             </pl-flex-layout>
 
-            <pl-action id="aGetMeta" endpoint="/@nfjs/compositions/api/getUnitData" data="{{meta}}" required-args="unitcode,showMethod" args="[[_compose('unitcode;showMethod;unitId', unitcode,showMethod,pkey)]]"></pl-action>
-            <pl-action id="aSave" endpoint="/@nfjs/compositions/api/saveUnitData" data="{{data}}" required-args="saveData,action,unitcode" args="[[_compose('saveData;action;unitcode', saveData,action,unitcode)]]"></pl-action>
+            <pl-action id="aGetMeta" endpoint="/@nfjs/compositions/api/getUnitData" data="{{meta}}"
+                required-args="unitcode;showMethod" args="[[_compose('unitcode;showMethod;unitId', unitcode,showMethod,pkey)]]">
+            </pl-action>
+            <pl-action id="aSave" endpoint="/@nfjs/compositions/api/saveUnitData" data="{{data}}"
+                required-args="saveData,action,unitcode" args="[[_compose('saveData;action;unitcode', saveData,action,unitcode)]]">
+            </pl-action>
         `
     }
 
     onConnect() {
-        debugger
         this.$.aGetMeta.execute();
     }
 
@@ -117,7 +124,7 @@ export default class UnitGenEdit extends PlForm {
 
     async onSave() {
         let data = {};
-        this.meta.columns.forEach( f => {
+        this.meta.columns.forEach(f => {
             data[f.field] = f.value;
         })
         this.set('saveData', data);
