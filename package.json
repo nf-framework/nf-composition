@@ -1,0 +1,17 @@
+{
+  "name": "@nfjs/composition",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Композиции и методы показа",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./nf-module.js": "./nf-module.js"
+  },
+  "dependencies": {
+    "@nfjs/front-pl": "^1.0.0",
+    "@nfjs/core": "^1.0.0",
+    "@nfjs/back-dbfw": "^1.0.0",
+    "@nfjs/back": "^1.0.0"
+  }
+}

@@ -1,0 +1,45 @@
+[
+  {
+    "code": "default",
+    "name": "Разделы системы",
+    "view_name": "nfc.v4unitlist8default",
+    "columns": [
+      {
+        "field": "code",
+        "caption": "Уникальный код",
+        "is_hidden": false,
+        "sortable": true,
+        "sort": "asc",
+        "width": 200,
+        "is_primary": true,
+        "is_required": true,
+        "is_return": false
+      },
+      {
+        "field": "caption",
+        "caption": "Наименование",
+        "is_hidden": false,
+        "is_required": true
+      },
+      {
+        "field": "mdl",
+        "caption": "Модуль",
+        "is_hidden": true,
+        "is_required": true
+      },
+      {
+        "field": "mdl_caption",
+        "caption": "Модуль",
+        "is_hidden": false,
+        "is_required": true,
+        "is_foreign": true,
+        "unitcode": "nfc.modulelist"
+      }
+    ]
+  },
+  {
+    "code": "test",
+    "name": "Разделы системы",
+    "view_name": "nfc.v4unitlist"
+  }
+]
