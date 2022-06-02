@@ -5,9 +5,11 @@ export default class CompositionFrm extends PlComposition {
         return {
             formTitle: {
                 type: String,
+                value: 'Роли'
             },
             unitcode: {
                 type: String,
+                value: 'nfc.roles'
             },
             compositionCode: {
                 type: String,

@@ -6,7 +6,7 @@ export default class UVFrm extends PlForm {
         return {
             formTitle: {
                 type: String,
-                value: 'Разделы системы'
+                value: 'Роли'
             }
         }
     }
@@ -20,7 +20,7 @@ export default class UVFrm extends PlForm {
     static get template() {
         return html`
             <pl-flex-layout scrollable vertical fit>
-                <pl-unit-view unitcode="nfc.unitlist" show-method="default" editable="true"></pl-unit-view>
+                <pl-unit-view unitcode="nfc.roles" show-method="default" editable="true"></pl-unit-view>
             </pl-flex-layout>
 		`;
     }

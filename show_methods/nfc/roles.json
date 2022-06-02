@@ -1,0 +1,37 @@
+[
+  {
+    "code": "default",
+    "name": "Роли",
+    "view_name": "nfc.v4roles",
+    "columns": [
+      {
+        "field": "id",
+        "caption": "Идентификатор",
+        "is_hidden": true,
+        "is_primary": true,
+        "is_required": true,
+        "is_return": false
+      },
+      {
+        "field": "code",
+        "caption": "Код",
+        "is_hidden": false,
+        "sortable": true,
+        "sort": "asc",
+        "is_required": true,
+        "width": 200
+      },
+      {
+        "field": "caption",
+        "caption": "Наименование",
+        "is_hidden": false,
+        "is_required": true
+      }
+    ]
+  },
+  {
+    "code": "test",
+    "name": "Роли",
+    "view_name": "nfc.v4roles"
+  }
+]
