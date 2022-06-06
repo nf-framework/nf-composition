@@ -19,6 +19,10 @@ export default class UnitGenEdit extends PlForm {
                 type: String,
                 value: 'Сохранить'
             },
+            _key: {
+                type: String,
+                value: ''
+            },
             pkey: {
                 type: String,
                 value: ''
@@ -41,7 +45,7 @@ export default class UnitGenEdit extends PlForm {
             },
             urlParams: {
                 type: Array,
-                value: ['unitcode', 'showMethod', 'pkey']
+                value: ['unitcode', 'showMethod', '_key']
             }
         }
     }
@@ -84,7 +88,7 @@ export default class UnitGenEdit extends PlForm {
             </pl-flex-layout>
 
             <pl-action id="aGetMeta" endpoint="/@nfjs/compositions/api/getUnitData" data="{{meta}}"
-                required-args="unitcode;showMethod" args="[[_compose('unitcode;showMethod;unitId', unitcode,showMethod,pkey)]]">
+                required-args="unitcode;showMethod" args="[[_compose('unitcode;showMethod;unitId', unitcode,showMethod,_key)]]">
             </pl-action>
             <pl-action id="aSave" endpoint="/@nfjs/compositions/api/saveUnitData" data="{{data}}"
                 required-args="saveData;action;unitcode" args="[[_compose('saveData;action;unitcode', saveData,action,unitcode)]]">
@@ -97,7 +101,7 @@ export default class UnitGenEdit extends PlForm {
     }
 
     _metaObserver() {
-        if (this.pkey) {
+        if (this._key) {
             this.set('formTitle', this.meta.name + ': Редактирование');
             this.set('actionBtnLabel', 'Сохранить');
             this.set('action', 'upd');
@@ -129,6 +133,9 @@ export default class UnitGenEdit extends PlForm {
             data[f.field] = f.value;
         })
         this.set('saveData', data);
+        if (this.pkey && this.parentValue) {
+            this.set(`saveData.${this.pkey}`, this.parentValue);
+        }
         let res = await this.$.aSave.execute();
         if (res.success) {
             this.notify('Данные успешно сохранены');

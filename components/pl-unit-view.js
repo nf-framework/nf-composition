@@ -15,7 +15,7 @@ import '@nfjs/front-pl/components/pl-dropdown-menu-item.js';
  *
  */
 
-// todo: parent, tree, add, upd, filters
+// todo: tree, filters, field_type, return
 
 class PlUnitView extends PlElement {
     static get properties() {
@@ -40,13 +40,15 @@ class PlUnitView extends PlElement {
             },
             selected: {
                 type: Object,
-                value: () => { },
-                //observer: '_selectedObserver'
+                value: () => { }
             },
             _key: {
                 type: String
             },
             _hkey: {
+                type: String
+            },
+            pkey: {
                 type: String
             },
             value: {
@@ -61,6 +63,10 @@ class PlUnitView extends PlElement {
             },
             form: {
                 type: Object
+            },
+            filters: {
+                type: Object,
+                value: () => ({})
             }
         }
     }
@@ -84,7 +90,7 @@ class PlUnitView extends PlElement {
                         <pl-button variant="primary" label="Добавить" on-click="[[onAddClick]]">
                     </template>
                 </pl-dom-if>
-                <pl-grid header=[[meta.name]] data="[[data]]" selected="{{selected}}" id="grid">
+                <pl-grid header="[[meta.name]]" data="[[data]]" selected="{{selected}}" id="grid">
                     <pl-repeat items="{{meta.columns}}">
                         <template>
                             <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
@@ -129,9 +135,13 @@ class PlUnitView extends PlElement {
 
     async _metaObserver() {
         if (this.meta.columns.length > 0) {
+            if (this.pkey && this.parentValue) {
+                this.set('filters', Object.assign({[this.pkey]: this.parentValue}, this.filters));
+            }
             await this.$.dsData.execute({
                 unitcode: this.unitcode,
-                showMethod: this.showMethod
+                showMethod: this.showMethod,
+                filters: this.filters
             })
             this.set('_key', this.getPrimaryKey());
             this.set('_hkey', this.getHierarchyKey());
@@ -154,7 +164,9 @@ class PlUnitView extends PlElement {
     async onAddClick() {
         await this.form.open('composition.unit_genedit', {
                 unitcode: this.unitcode,
-                showMethod: this.showMethod
+                showMethod: this.showMethod,
+                pkey: this.pkey,
+                parentValue: this.parentValue
             }
         );
         this.refresh()
@@ -164,7 +176,9 @@ class PlUnitView extends PlElement {
         await this.form.open('composition.unit_genedit', {
                 unitcode: this.unitcode,
                 showMethod: this.showMethod,
-                pkey: event.model.row[this._key]
+                _key: event.model.row[this._key],
+                pkey: this.pkey,
+                parentValue: this.parentValue
             }
         );
         this.refresh()
