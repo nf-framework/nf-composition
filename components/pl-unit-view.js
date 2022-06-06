@@ -5,6 +5,7 @@ import '@plcmp/pl-grid/pl-grid-column';
 import '@plcmp/pl-repeat';
 import '@plcmp/pl-dom-if';
 import '@plcmp/pl-icon-button';
+import '@plcmp/pl-checkbox';
 import '@nfjs/front-pl/components/pl-dropdown-menu.js';
 import '@nfjs/front-pl/components/pl-dropdown-menu-item.js';
 
@@ -93,10 +94,24 @@ class PlUnitView extends PlElement {
                 <pl-grid header="[[meta.name]]" data="[[data]]" selected="{{selected}}" id="grid">
                     <pl-repeat items="{{meta.columns}}">
                         <template>
-                            <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
-                                hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" width="[[item.width]]"
-                                resizable>
-                            </pl-grid-column>
+                            <pl-dom-if if="[[checkFieldType(item.field_type)]]">
+                                <template>
+                                    <pl-grid-column header="[[item.caption]]" sortable="[[item.sortable]]" sort="[[item.sort]]" 
+                                                    width="[[item.width]]" resizable>
+                                        <template>
+                                            <pl-checkbox disabled variant="horizontal" checked="[[item.field]]"></pl-checkbox>
+                                        </template>
+                                    </pl-grid-column>
+                                </template>
+                            </pl-dom-if>
+                            <pl-dom-if if="[[!checkFieldType(item.field_type)]]">
+                                <template>
+                                    <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
+                                        hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" width="[[item.width]]"
+                                        resizable>
+                                    </pl-grid-column>
+                                </template>
+                            </pl-dom-if>
                         </template>
                     </pl-repeat>
                     <pl-dom-if if="[[editable]]">
@@ -131,6 +146,10 @@ class PlUnitView extends PlElement {
             unitcode: this.unitcode,
             showMethod: this.showMethod
         })
+    }
+
+    checkFieldType(fieldType) {
+        return fieldType === 'checkbox';
     }
 
     async _metaObserver() {

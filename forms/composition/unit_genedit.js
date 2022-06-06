@@ -61,24 +61,41 @@ export default class UnitGenEdit extends PlForm {
             <pl-flex-layout scrollable vertical fit>
                 <pl-repeat items="{{meta.columns}}">
                     <template>                        
-                        <pl-flex-layout hidden="[[item.is_primary]]">
-                            <pl-dom-if if="[[!item.is_hidden]]">
-                                <template>
-                                    <pl-dom-if if="[[!item.is_foreign]]">
-                                        <template>
-                                            <pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-input>
-                                        </template>
-                                    </pl-dom-if>
-                                    <pl-dom-if if="[[item.is_foreign]]">
-                                        <template>
-                                            <pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]">
-                                                <pl-icon iconset="pl-default" size="16" icon="more-horizontal" slot="suffix" on-click="[[onBtnClick]]"></pl-icon>
-                                            </pl-input>
-                                        </template>
-                                    </pl-dom-if>
-                                </template>
-                            </pl-dom-if>
-                        </pl-flex-layout>
+                        <pl-dom-if if="[[!item.is_hidden]]">
+                            <template>
+                                <pl-dom-if if="[[!item.is_foreign]]">
+                                    <template>
+                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'input')]]">
+                                            <template>
+                                                <pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-input>
+                                            </template>
+                                        </pl-dom-if>
+                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'checkbox')]]">
+                                            <template>
+                                                <pl-checkbox variant="horizontal" checked="{{item.value}}" label="{{item.caption}}"></pl-checkbox>
+                                            </template>
+                                        </pl-dom-if>
+                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'textarea')]]">
+                                            <template>
+                                                <pl-textarea stretch variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-textarea>
+                                            </template>
+                                        </pl-dom-if>
+                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'date')]]">
+                                            <template>
+                                                <pl-datetime variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-datetime>
+                                            </template>
+                                        </pl-dom-if>
+                                    </template>
+                                </pl-dom-if>
+                                <pl-dom-if if="[[item.is_foreign]]">
+                                    <template>
+                                        <pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]">
+                                            <pl-icon iconset="pl-default" size="16" icon="more-horizontal" slot="suffix" on-click="[[onBtnClick]]"></pl-icon>
+                                        </pl-input>
+                                    </template>
+                                </pl-dom-if>
+                            </template>
+                        </pl-dom-if>
                     </template>
                 </pl-repeat>
                 <pl-flex-layout fit>
@@ -98,6 +115,10 @@ export default class UnitGenEdit extends PlForm {
 
     onConnect() {
         this.$.aGetMeta.execute();
+    }
+
+    checkFieldType(fieldType = 'input', type) {
+        return fieldType === type;
     }
 
     _metaObserver() {
