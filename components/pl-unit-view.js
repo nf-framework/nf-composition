@@ -52,11 +52,19 @@ export class PlUnitView extends PlForm {
             },
             editable: {
                 type: Boolean,
-                value: true
+                value: false
             },
             filters: {
                 type: Object,
                 value: () => ({})
+            },
+            _treeMode: {
+                type: Boolean,
+                value: false
+            },
+            modalEditForms: {
+                type: Boolean,
+                value: false
             }
         }
     }
@@ -80,7 +88,8 @@ export class PlUnitView extends PlForm {
                         <pl-button variant="primary" label="Добавить" on-click="[[onAddClick]]">
                     </template>
                 </pl-dom-if>
-                <pl-grid header="[[meta.name]]" data="[[data]]" selected="{{selected}}" id="grid">
+                <pl-grid header="[[meta.name]]" data="[[data]]" selected="{{selected}}" tree="[[_treeMode]]"
+                         key-field="[[_key]]" pkey-field="[[_hkey]]" id="grid">
                     <pl-repeat items="{{meta.columns}}">
                         <template>
                             <pl-dom-if if="[[checkFieldType(item.field_type)]]">
@@ -153,7 +162,7 @@ export class PlUnitView extends PlForm {
             })
             this.set('_key', this.getPrimaryKey());
             this.set('_hkey', this.getHierarchyKey());
-            //this.set('_treeMode', !!this._hkey);
+            this.set('_treeMode', !!this._hkey);
         }
     }
 
@@ -170,25 +179,27 @@ export class PlUnitView extends PlForm {
     }
 
     async onAddClick() {
-        await this.open('composition.unit_genedit', {
-                unitcode: this.unitcode,
-                showMethod: this.showMethod,
-                pkey: this.pkey,
-                parentValue: this.parentValue
-            }
-        );
+        const params = {
+            unitcode: this.unitcode,
+            showMethod: this.showMethod,
+            pkey: this.pkey,
+            parentValue: this.parentValue
+        };
+        this.modalEditForms ? await this.openModal('composition.unit_genedit', params)
+            : await this.open('composition.unit_genedit', params)
         this.refresh()
     }
 
     async onUpdClick(event) {
-        await this.open('composition.unit_genedit', {
-                unitcode: this.unitcode,
-                showMethod: this.showMethod,
-                _key: event.model.row[this._key],
-                pkey: this.pkey,
-                parentValue: this.parentValue
-            }
-        );
+        const params = {
+            unitcode: this.unitcode,
+            showMethod: this.showMethod,
+            _key: event.model.row[this._key],
+            pkey: this.pkey,
+            parentValue: this.parentValue
+        };
+        this.modalEditForms ? await this.openModal('composition.unit_genedit', params)
+            : await this.open('composition.unit_genedit', params)
         this.refresh()
     }
 
