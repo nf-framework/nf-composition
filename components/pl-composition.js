@@ -13,9 +13,6 @@ export class PlComposition extends PlForm {
             showMethod: {
                 type: String,
                 value: 'default'
-            },
-            form: {
-                type: Object
             }
         }
     }
@@ -27,7 +24,7 @@ export class PlComposition extends PlForm {
 
     static get template() {
         return html`
-            <pl-unit-view form="[[form]]" unitcode="[[unitcode]]" show-method="[[showMethod]]"></pl-unit-view>
+            <pl-unit-view unitcode="[[unitcode]]" show-method="[[showMethod]]"></pl-unit-view>
 		`;
     }
 }

@@ -1,13 +1,5 @@
-import { PlElement, css, html } from "polylib";
-import { openForm } from "@nfjs/front-pl/lib/FormUtils";
-import '@plcmp/pl-grid';
-import '@plcmp/pl-grid/pl-grid-column';
-import '@plcmp/pl-repeat';
-import '@plcmp/pl-dom-if';
-import '@plcmp/pl-icon-button';
-import '@plcmp/pl-checkbox';
-import '@nfjs/front-pl/components/pl-dropdown-menu.js';
-import '@nfjs/front-pl/components/pl-dropdown-menu-item.js';
+import { html, css } from "polylib";
+import { PlForm } from "@nfjs/front-pl/components/pl-form.js";
 
 /**
  * Метод показа раздела системы.
@@ -16,9 +8,9 @@ import '@nfjs/front-pl/components/pl-dropdown-menu-item.js';
  *
  */
 
-// todo: tree, filters, field_type, return
+// todo: tree, filters, return
 
-class PlUnitView extends PlElement {
+export class PlUnitView extends PlForm {
     static get properties() {
         return {
             meta: {
@@ -62,9 +54,6 @@ class PlUnitView extends PlElement {
                 type: Boolean,
                 value: true
             },
-            form: {
-                type: Object
-            },
             filters: {
                 type: Object,
                 value: () => ({})
@@ -107,8 +96,8 @@ class PlUnitView extends PlElement {
                             <pl-dom-if if="[[!checkFieldType(item.field_type)]]">
                                 <template>
                                     <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
-                                        hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" width="[[item.width]]"
-                                        resizable>
+                                                    hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" 
+                                                    width="[[item.width]]" resizable>
                                     </pl-grid-column>
                                 </template>
                             </pl-dom-if>
@@ -120,9 +109,9 @@ class PlUnitView extends PlElement {
                                 <template>
                                     <pl-flex-layout>
                                         <pl-icon-button iconset="pl-default" size="16" icon="pencil" on-click="[[onUpdClick]]"
-                                            variant="link" title="Редактировать"></pl-icon-button>
+                                                        variant="link" title="Редактировать"></pl-icon-button>
                                         <pl-icon-button iconset="pl-default" size="16" icon="trashcan" on-click="[[onDelClick]]"
-                                            variant="link" title="Удалить"></pl-icon-button>
+                                                        variant="link" title="Удалить"></pl-icon-button>
                                     </pl-flex-layout>
                                 </template>
                             </pl-grid-column>
@@ -181,7 +170,7 @@ class PlUnitView extends PlElement {
     }
 
     async onAddClick() {
-        await this.form.open('composition.unit_genedit', {
+        await this.open('composition.unit_genedit', {
                 unitcode: this.unitcode,
                 showMethod: this.showMethod,
                 pkey: this.pkey,
@@ -192,7 +181,7 @@ class PlUnitView extends PlElement {
     }
 
     async onUpdClick(event) {
-        await this.form.open('composition.unit_genedit', {
+        await this.open('composition.unit_genedit', {
                 unitcode: this.unitcode,
                 showMethod: this.showMethod,
                 _key: event.model.row[this._key],
@@ -204,12 +193,12 @@ class PlUnitView extends PlElement {
     }
 
     async onDelClick(event) {
-        const resConfirm = await this.form.showConfirm(`Вы уверены, что хотите удалить запись?`, {
+        const resConfirm = await this.showConfirm(`Вы уверены, что хотите удалить запись?`, {
             buttons: [{
-                label: 'Нет',
-                variant: 'secondary',
-                action: false,
-            },
+                    label: 'Нет',
+                    variant: 'secondary',
+                    action: false,
+                },
                 {
                     label: 'Удалить',
                     variant: 'primary',
@@ -217,14 +206,14 @@ class PlUnitView extends PlElement {
                     action: true
                 }]
         });
-        if(resConfirm) {
+        if (resConfirm) {
             let res = await this.$.aDel.execute({
                 unitcode: this.unitcode,
                 pkey: this._key,
                 unitId: event.model.row[this._key]
             });
             if (res.success) {
-                this.form.notify('Запись успешно удалена');
+                this.notify('Запись успешно удалена');
                 this.refresh();
             }
         }
