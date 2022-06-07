@@ -48,7 +48,8 @@ export class PlUnitView extends PlForm {
                 type: String
             },
             parentValue: {
-                type: String
+                type: String,
+                value: null
             },
             editable: {
                 type: Boolean,
@@ -152,7 +153,7 @@ export class PlUnitView extends PlForm {
 
     async _metaObserver() {
         if (this.meta.columns.length > 0) {
-            if (this.pkey && this.parentValue) {
+            if (this.pkey) {
                 this.set('filters', Object.assign({[this.pkey]: this.parentValue}, this.filters));
             }
             await this.$.dsData.execute({
