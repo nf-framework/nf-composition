@@ -86,7 +86,7 @@ export class PlUnitView extends PlForm {
             <pl-flex-layout fit vertical scrollabel>
                 <pl-dom-if if="[[editable]]">
                     <template>
-                        <pl-button variant="primary" label="Добавить" on-click="[[onAddClick]]">
+                        <pl-button variant="ghost" label="Добавить" on-click="[[onAddClick]]">
                     </template>
                 </pl-dom-if>
                 <pl-grid header="[[meta.name]]" data="[[data]]" selected="{{selected}}" tree="[[_treeMode]]"
