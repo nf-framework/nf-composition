@@ -1,0 +1,17 @@
+[
+  {
+    "code": "default",
+    "name": "Роли",
+    "show_methods": [
+      {
+        "code": "default",
+        "unitcode": "nfc.roles",
+        "show_method": "default"
+      }
+    ]
+  },
+  {
+    "code": "test",
+    "name": "Роли"
+  }
+]
