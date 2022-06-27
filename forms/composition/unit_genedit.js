@@ -1,12 +1,17 @@
 import { html, css } from "polylib";
 import { PlForm } from "@nfjs/front-pl/components/pl-form.js";
 
+import "@plcmp/pl-textarea";
+import "@plcmp/pl-checkbox";
+import "@plcmp/pl-datetime";
+import "@nfjs/composition/components/pl-unit-edit.js";
+
+// todo: combobox, radiogroup
 export default class UnitGenEdit extends PlForm {
     static get properties() {
         return {
             formTitle: {
-                type: String,
-                value: ''
+                type: String
             },
             meta: {
                 type: Object,
@@ -14,10 +19,6 @@ export default class UnitGenEdit extends PlForm {
                     columns: []
                 }),
                 observer: '_metaObserver'
-            },
-            actionBtnLabel: {
-                type: String,
-                value: 'Сохранить'
             },
             _key: {
                 type: String,
@@ -50,56 +51,25 @@ export default class UnitGenEdit extends PlForm {
         }
     }
 
-    static get css() {
-        return css`
-
-        `
+    static templates = {
+        String: html`<pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-input>`,
+        Number: html`<pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]" type="number"></pl-input>`,
+        Textarea: html`<pl-textarea stretch variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-textarea>`,
+        Checkbox: html`<pl-checkbox variant="horizontal" checked="{{item.value}}" label="{{item.caption}}"></pl-checkbox>`,
+        Date: html`<pl-datetime variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-datetime>`,
+        //Combobox: html`<pl-combobox label="[[item.name]]" value="{{item.value}}" data="[[item.enum]]" type="number"></pl-combobox>`,
+        //Radiogroup: html``,
+        Fk: html`<pl-unit-edit unitcode="[[item.unitcode]]" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-unit-edit>`
     }
 
     static get template() {
         return html`
             <pl-flex-layout scrollable vertical fit>
-                <pl-repeat items="{{meta.columns}}">
-                    <template>                        
-                        <pl-dom-if if="[[!item.is_hidden]]">
-                            <template>
-                                <pl-dom-if if="[[!item.is_foreign]]">
-                                    <template>
-                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'input')]]">
-                                            <template>
-                                                <pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-input>
-                                            </template>
-                                        </pl-dom-if>
-                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'checkbox')]]">
-                                            <template>
-                                                <pl-checkbox variant="horizontal" checked="{{item.value}}" label="{{item.caption}}"></pl-checkbox>
-                                            </template>
-                                        </pl-dom-if>
-                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'textarea')]]">
-                                            <template>
-                                                <pl-textarea stretch variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-textarea>
-                                            </template>
-                                        </pl-dom-if>
-                                        <pl-dom-if if="[[checkFieldType(item.field_type, 'date')]]">
-                                            <template>
-                                                <pl-datetime variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]"></pl-datetime>
-                                            </template>
-                                        </pl-dom-if>
-                                    </template>
-                                </pl-dom-if>
-                                <pl-dom-if if="[[item.is_foreign]]">
-                                    <template>
-                                        <pl-input variant="horizontal" value="{{item.value}}" label="{{item.caption}}" required="[[item.is_required]]">
-                                            <pl-icon iconset="pl-default" size="16" icon="more-horizontal" slot="suffix" on-click="[[onBtnClick]]"></pl-icon>
-                                        </pl-input>
-                                    </template>
-                                </pl-dom-if>
-                            </template>
-                        </pl-dom-if>
-                    </template>
-                </pl-repeat>
+                <template d:repeat="{{meta.columns}}" d:as="item">
+                    [[getTpl(item)]]
+                </template>
                 <pl-flex-layout fit>
-                    <pl-button label="[[actionBtnLabel]]" on-click="[[onSave]]"></pl-button>
+                    <pl-button label="Сохранить" on-click="[[onSave]]"></pl-button>
                     <pl-button label="Отмена" on-click="[[close]]"></pl-button>
                 </pl-flex-layout>
             </pl-flex-layout>
@@ -117,34 +87,21 @@ export default class UnitGenEdit extends PlForm {
         this.$.aGetMeta.execute();
     }
 
-    checkFieldType(fieldType = 'input', type) {
-        return fieldType === type;
+    getTpl(item) {
+        let res = '';
+        if (item && !item.is_hidden) {
+            res = this.constructor.templates[item.is_foreign ? 'Fk' : (item.field_type || 'String')] ?? '';
+        }
+        return res;
     }
 
     _metaObserver() {
         if (this._key) {
             this.set('formTitle', this.meta.name + ': Редактирование');
-            this.set('actionBtnLabel', 'Сохранить');
             this.set('action', 'upd');
         } else {
             this.set('formTitle', this.meta.name + ': Добавление');
-            this.set('actionBtnLabel', 'Добавить');
             this.set('action', 'add');
-        }
-    }
-
-    async onBtnClick(event) {
-        return;
-        // todo: open composition
-        const item = event.model.item;
-        const result = await this.openModal('composition/composition', {
-            unitcode: item.unitcode,
-            compositionCode: ''
-        })
-
-        if (result) {
-            this.set(`${item.value}`, result.id)
-            this.set(`${item.caption}`, result.caption)
         }
     }
 
@@ -160,7 +117,7 @@ export default class UnitGenEdit extends PlForm {
         let res = await this.$.aSave.execute();
         if (res.success) {
             this.notify('Данные успешно сохранены');
-            this.close();
+            this.close({id: res.id});
         }
     }
 }

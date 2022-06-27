@@ -1,10 +1,13 @@
 import { html, css } from "polylib";
 import { PlForm } from "@nfjs/front-pl/components/pl-form.js";
 
+import "@plcmp/pl-grid";
+import "@plcmp/pl-checkbox";
+
 /**
  * Метод показа раздела системы.
  *
- *     <nf-unit-view unitcode="nfc.unitlist" show-method="default"></nf-unit-view>
+ *     <pl-unit-view unitcode="nfc.unitlist" show-method="default"></nf-unit-view>
  *
  */
 
@@ -33,7 +36,8 @@ export class PlUnitView extends PlForm {
             },
             selected: {
                 type: Object,
-                value: () => { }
+                value: () => { },
+                observer: '_selectedObserver'
             },
             _key: {
                 type: String
@@ -45,6 +49,9 @@ export class PlUnitView extends PlForm {
                 type: String
             },
             value: {
+                type: String
+            },
+            caption: {
                 type: String
             },
             parentValue: {
@@ -81,6 +88,20 @@ export class PlUnitView extends PlForm {
 		`;
     }
 
+    static templates = {
+        Simple: html`
+            <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
+                            hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]"
+                            width="[[item.width]]" resizable></pl-grid-column>`,
+        Checkbox: html`
+            <pl-grid-column header="[[item.caption]]" sortable="[[item.sortable]]" sort="[[item.sort]]"
+                                       width="[[item.width]]" resizable>
+                <template>
+                    <pl-checkbox disabled variant="horizontal" checked="[[row.item.field]]"></pl-checkbox>
+                </template>
+            </pl-grid-column>`,
+    }
+
     static get template() {
         return html`
             <pl-flex-layout fit vertical scrollabel>
@@ -91,28 +112,9 @@ export class PlUnitView extends PlForm {
                 </pl-dom-if>
                 <pl-grid header="[[meta.name]]" data="[[data]]" selected="{{selected}}" tree="[[_treeMode]]"
                          key-field="[[_key]]" pkey-field="[[_hkey]]" id="grid">
-                    <pl-repeat items="{{meta.columns}}">
-                        <template>
-                            <pl-dom-if if="[[checkFieldType(item.field_type)]]">
-                                <template>
-                                    <pl-grid-column header="[[item.caption]]" sortable="[[item.sortable]]" sort="[[item.sort]]" 
-                                                    width="[[item.width]]" resizable>
-                                        <template>
-                                            <pl-checkbox disabled variant="horizontal" checked="[[item.field]]"></pl-checkbox>
-                                        </template>
-                                    </pl-grid-column>
-                                </template>
-                            </pl-dom-if>
-                            <pl-dom-if if="[[!checkFieldType(item.field_type)]]">
-                                <template>
-                                    <pl-grid-column min-width="50" field="[[item.field]]" header="[[item.caption]]"
-                                                    hidden="[[item.is_hidden]]" sortable="[[item.sortable]]" sort="[[item.sort]]" 
-                                                    width="[[item.width]]" resizable>
-                                    </pl-grid-column>
-                                </template>
-                            </pl-dom-if>
-                        </template>
-                    </pl-repeat>
+                    <template d:repeat="{{meta.columns}}" d:as="item">
+                        [[getTpl(item.field_type)]]
+                    </template>
                     <pl-dom-if if="[[editable]]">
                         <template>
                             <pl-grid-column width="90" action>
@@ -147,12 +149,16 @@ export class PlUnitView extends PlForm {
         })
     }
 
-    checkFieldType(fieldType) {
-        return fieldType === 'checkbox';
+    getTpl(name) {
+        return this.constructor.templates[name === 'Checkbox' ? name : 'Simple'] ?? '';
     }
 
     async _metaObserver() {
         if (this.meta.columns.length > 0) {
+            this.set('_key', this.getPrimaryKey());
+            this.set('_hkey', this.getHierarchyKey());
+            this.set('_treeMode', !!this._hkey);
+
             if (this.pkey) {
                 this.set('filters', Object.assign({[this.pkey]: this.parentValue}, this.filters));
             }
@@ -161,9 +167,6 @@ export class PlUnitView extends PlForm {
                 showMethod: this.showMethod,
                 filters: this.filters
             })
-            this.set('_key', this.getPrimaryKey());
-            this.set('_hkey', this.getHierarchyKey());
-            this.set('_treeMode', !!this._hkey);
         }
     }
 
@@ -173,6 +176,10 @@ export class PlUnitView extends PlForm {
 
     getHierarchyKey() {
         return this.getColumnByKeyValue('is_parent', true)?.field;
+    }
+
+    getReturnKey() {
+        return this.getColumnByKeyValue('is_return', true)?.field;
     }
 
     getColumnByKeyValue(key, value) {
@@ -186,9 +193,11 @@ export class PlUnitView extends PlForm {
             pkey: this.pkey,
             parentValue: this.parentValue
         };
-        this.modalEditForms ? await this.openModal('composition.unit_genedit', params)
+        const res = this.modalEditForms ? await this.openModal('composition.unit_genedit', params)
             : await this.open('composition.unit_genedit', params)
-        this.refresh()
+        if (res?.id) {
+            this.refresh()
+        }
     }
 
     async onUpdClick(event) {
@@ -199,9 +208,11 @@ export class PlUnitView extends PlForm {
             pkey: this.pkey,
             parentValue: this.parentValue
         };
-        this.modalEditForms ? await this.openModal('composition.unit_genedit', params)
+        const res = this.modalEditForms ? await this.openModal('composition.unit_genedit', params)
             : await this.open('composition.unit_genedit', params)
-        this.refresh()
+        if (res?.id) {
+            this.refresh()
+        }
     }
 
     async onDelClick(event) {
@@ -229,6 +240,13 @@ export class PlUnitView extends PlForm {
                 this.refresh();
             }
         }
+    }
+
+    _selectedObserver(value) {
+        if (!value) return;
+
+        this.set('value', value[this.getPrimaryKey()]);
+        this.set('caption', value[this.getReturnKey()]);
     }
 }
 

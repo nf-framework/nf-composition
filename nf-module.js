@@ -1,11 +1,13 @@
 import {registerCustomElementsDir, registerLibDir} from "@nfjs/front-server";
 import { web } from "@nfjs/back";
 import * as sm from './lib/show_method.js';
+import * as cmp from './lib/composition.js';
 
 function init() {
     registerCustomElementsDir('@nfjs/composition/components')
     registerLibDir('@nfjs/composition');
 
+    web.on('POST', '/@nfjs/compositions/api/getCompositionMeta', { middleware: ['session', 'auth', 'json'] }, cmp.getCompositionMeta);
     web.on('POST', '/@nfjs/compositions/api/getShowMethodMeta', { middleware: ['session', 'auth', 'json'] }, sm.getShowMethodMeta);
     web.on('POST', '/@nfjs/compositions/api/getShowMethodData', { middleware: ['session', 'auth', 'json'] }, sm.getShowMethodData);
     web.on('POST', '/@nfjs/compositions/api/getUnitData', { middleware: ['session', 'auth', 'json'] }, sm.getUnitData);

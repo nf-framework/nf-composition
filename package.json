@@ -9,6 +9,7 @@
     "./nf-module.js": "./nf-module.js"
   },
   "dependencies": {
+    "polylib": "^1.1.1",
     "@nfjs/front-pl": "^1.0.0",
     "@nfjs/core": "^1.0.0",
     "@nfjs/back-dbfw": "^1.0.0",
